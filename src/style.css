@@ -41,7 +41,6 @@ h1 {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -94,4 +93,14 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+ol {
+  margin: 0px;
+  padding: 0px;
+}
+
+li {
+  margin: 0;
+  padding: 5px;
 }
