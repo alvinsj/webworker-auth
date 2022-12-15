@@ -15,7 +15,7 @@ export function setupPromptForAuthentication(element: HTMLButtonElement, opts: S
   } = opts
   
   element.addEventListener('click', () => {
-    fetchWith(worker)('/login', { body: JSON.stringify({username, password}) }).then(res => {
+    fetchWith(worker)('?login', { body: JSON.stringify({username, password}) }).then(res => {
       log(`Success = ${res}`)
       log('')
     }).catch(err => {

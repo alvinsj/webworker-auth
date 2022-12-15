@@ -1,7 +1,7 @@
 
 let isLoggedIn : string | undefined
 
-const mockLogin = () => {
+const mockLogin = (username: string, password: string) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       isLoggedIn = 'secret'
@@ -23,14 +23,35 @@ const mockFetch = (url: string, opts = {}) => {
     }, 0)
   })
 } 
-
+let username:string, password: string;
 
 onmessage = async function (e) {
-  const [uuid, url] = e.data;
+  const [uuid, url, body] = e.data;
 
-  if(!isLoggedIn) await mockLogin()
+  switch(true) {
+    case url === '?login': {
+      const { username: u, password: p } = JSON.parse(body);
+      
+      try {
+        await mockLogin(u, p)
+        username = u
+        password = p
+      } catch(e) {
+        postMessage([uuid, 'failed logging in'])
+      }
+      
+      postMessage([uuid, 'logged in'])
+      return
+    }
+    default: {
+      if(!username || !password) {
+        this.postMessage([uuid, 'error: no previous session'])
+        return 
+      }
+      if(!isLoggedIn) await mockLogin(username, password)
   
-  const res = await mockFetch(url)
-  postMessage([uuid, res])
-  
+      const res = await mockFetch(url)
+      postMessage([uuid, res])
+    }
+  }
 }

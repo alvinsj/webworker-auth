@@ -4,7 +4,7 @@ import { log } from './log'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
-    <h1>POC for Web Worker Auth</h1>
+    <h1>Web Worker Auth</h1>
     <main>
       <section id="steps">
         <h2>Actions</h2>
@@ -14,7 +14,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         </ol>
       </section>
       <section id="log">
-        <h2>Log</h2>
+        <h2>Logs</h2>
         <textarea id="status">
         </textarea>
       </section>
