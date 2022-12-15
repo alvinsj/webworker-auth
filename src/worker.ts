@@ -1,5 +1,6 @@
 
-let isLoggedIn : string | undefined
+let isLoggedIn : string | undefined;
+let username: string | undefined, password: string | undefined;
 
 const mockLogin = (username: string, password: string) => {
   return new Promise((resolve) => {
@@ -16,6 +17,19 @@ const mockLogin = (username: string, password: string) => {
   })
 }
 
+const mockLogout = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      isLoggedIn = undefined;
+      username = undefined;
+      password = undefined;
+
+      resolve('logged out')
+      console.log('Worker: logged out.');
+    }, 0)
+  })
+}
+
 const mockFetch = (url: string, opts = {}) => {
   return new Promise((resolve,) => {
     setTimeout(() => {
@@ -23,7 +37,6 @@ const mockFetch = (url: string, opts = {}) => {
     }, 0)
   })
 } 
-let username:string, password: string;
 
 onmessage = async function (e) {
   const [uuid, url, body] = e.data;
@@ -41,6 +54,17 @@ onmessage = async function (e) {
       }
       
       postMessage([uuid, 'logged in'])
+      return
+    }
+    case url === '?logout': {
+      
+      try {
+        await mockLogout()
+      } catch(e) {
+        postMessage([uuid, 'failed logging in'])
+      }
+      
+      postMessage([uuid, 'logged out'])
       return
     }
     default: {

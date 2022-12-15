@@ -39,4 +39,19 @@ export function setupSendAnAuthenticatedRequest(element: HTMLButtonElement, opts
   })
 }
 
+export function setupLogOutRequest(element: HTMLButtonElement, opts: SetupOpts) {
+  const {
+    worker
+  } = opts
+  
+  element.addEventListener('click', () => {
+    fetchWith(worker)('?logout').then(res => {
+      log(`Success = ${res}`)
+      log('')
+    }).catch(err => {
+      log(`Error = ${err}`)
+    })
+  })
+}
+
 
