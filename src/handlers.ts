@@ -9,7 +9,7 @@ export type SetupOpts = {
 const username = 'alvin'
 const password = '#secretAvocad0'
 
-export function setupPromptForAuthentication(element: HTMLButtonElement, opts: SetupOpts) {
+export function setupLoginRequest(element: HTMLButtonElement, opts: SetupOpts) {
   const {
     worker
   } = opts
