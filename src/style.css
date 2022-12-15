@@ -104,3 +104,8 @@ li {
   margin: 0;
   padding: 5px;
 }
+
+#status {
+  width: 80vw;
+  height: 50vh;
+}
