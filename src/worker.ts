@@ -33,48 +33,73 @@ const mockLogout = () => {
 const mockFetch = (url: string, opts = {}) => {
   return new Promise((resolve,) => {
     setTimeout(() => {
-      resolve('Authenticated request sent.')
+      resolve(`Authenticated request sent for ${opts?.method || 'GET'} ${url}`)
     }, 0)
   })
 } 
 
 onmessage = async function (e) {
-  const [uuid, url, body] = e.data;
+  const [uuid, url, opts, stream] = e.data;
+  const options = opts || {}
+
+  const tryLogin = async () => {
+    if(!username || !password) {
+      postMessage([uuid, {error: 'no previous session'}])
+      return false
+    }
+    if(!isLoggedIn) await mockLogin(username, password)
+
+    return true
+  }
 
   switch(true) {
+    // login
     case url === '?login': {
-      const { username: u, password: p } = JSON.parse(body);
+      const { username: u, password: p } = JSON.parse(options.body || {});
       
       try {
         await mockLogin(u, p)
         username = u
         password = p
       } catch(e) {
-        postMessage([uuid, 'failed logging in'])
+        postMessage([uuid, {error:'failed logging in'}])
       }
       
       postMessage([uuid, 'logged in'])
       return
     }
+
+    // logout 
     case url === '?logout': {
       
       try {
         await mockLogout()
       } catch(e) {
-        postMessage([uuid, 'failed logging in'])
+        postMessage([uuid, {error: 'failed logging in'}])
       }
       
       postMessage([uuid, 'logged out'])
       return
     }
+
+    // upload
+    case Boolean(stream): { 
+      if(!(await tryLogin())) return
+      
+      // NOTE can add more capability, e.g. progress
+      const res = await mockFetch(url, {
+        ...opts, 
+        body: stream
+      })
+      console.log('Worker: uploaded for stream')
+      postMessage([uuid, res])
+    }
+    
+    // general requests
     default: {
-      if(!username || !password) {
-        this.postMessage([uuid, 'error: no previous session'])
-        return 
-      }
-      if(!isLoggedIn) await mockLogin(username, password)
-  
-      const res = await mockFetch(url)
+      if(!(await tryLogin())) return
+
+      const res = await mockFetch(url, opts)
       postMessage([uuid, res])
     }
   }
