@@ -32,7 +32,16 @@ const mockLogout = () => {
   })
 }
 
+const addBearerToken = (opts) => ({
+  ...opts,
+  headers: new Headers({
+    ...Object.fromEntries(opts.header || []),
+    'Authorization': `Bearer ${authToken}`, 
+  })
+})
+
 const mockFetch = (url: string, opts = {}) => {
+  // FIXME use API instead of mock, use addBearerToken
   return new Promise((resolve,) => {
     setTimeout(() => {
       resolve(`Authenticated request sent for ${opts?.method || 'GET'} ${url}`)
@@ -41,7 +50,8 @@ const mockFetch = (url: string, opts = {}) => {
 } 
 
 const downloadFile = async (url: string, opts = {}) => {
-  const response = await fetch(url);
+  // FIXME use API instead of static files
+  const response = await fetch(url, addBearerToken(opts));
 
   if (!response.ok) {
     throw new Error(`Unable to download file: ${response.status}`);
