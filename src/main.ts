@@ -3,6 +3,7 @@ import {
   setupLoginRequest, 
   setupSendAnAuthenticatedRequest,
   setupUploadRequest,
+  setupDownloadRequest,
   setupLogOutRequest
 } from './handlers'
 import { log } from './log'
@@ -45,6 +46,12 @@ if (window.Worker) {
   setupUploadRequest(
     document.querySelector<HTMLButtonElement>('#upload')!, { 
       worker, fileInputSelector: '[type=file]#fileUpload'
+    }
+  )
+
+  setupDownloadRequest(
+    document.querySelector<HTMLButtonElement>('#download')!, { 
+      worker
     }
   )
 

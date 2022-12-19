@@ -1,4 +1,4 @@
-import { fetchWith, uploadWith } from './fetchWith'
+import { fetchWith, uploadWith, downloadWith } from './fetchWith'
 import { log } from './log'
 
 export type SetupOpts = {
@@ -71,6 +71,32 @@ export function setupUploadRequest(element: HTMLButtonElement, opts: SetupUpload
   });
 }
 
+export function setupDownloadRequest(element: HTMLButtonElement, opts: SetupOpts) {
+  const {
+    worker
+  } = opts
+
+  const clickToDownload = () => {
+    element.disabled = true
+    element.innerText = 'Downloading...'
+    downloadFile()
+  }
+  const downloadFile = () => {
+    // FIXME hardcode for example
+    const fileUrl = new URL('/github-git-cheat-sheet.pdf', import.meta.url).pathname
+    
+    downloadWith(worker)(fileUrl).then(res => {
+      log(`Success = Downloaded ${res}`, true)
+    }).catch(err => {    
+      log(`Error = ${err}`, true)
+    }).finally(() => {
+      element.innerText = 'Download a file'
+      element.disabled = false
+    })
+  }
+  element.addEventListener('click', clickToDownload)
+}
+
 export function setupLogOutRequest(element: HTMLButtonElement, opts: SetupOpts) {
   const {
     worker
@@ -84,5 +110,3 @@ export function setupLogOutRequest(element: HTMLButtonElement, opts: SetupOpts) 
     })
   })
 }
-
-

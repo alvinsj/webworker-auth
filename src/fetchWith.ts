@@ -2,7 +2,7 @@
 import { log } from './log'
 
 export type FetchOpts = {
-  body?: string,
+  body?: string
   method?: string
 }
 
@@ -12,7 +12,7 @@ const makeWorkerPromise = (worker: Worker, { url, opts, stream }: WorkerParam) =
   const uuid = crypto.randomUUID()
 
   if(Boolean(stream))
-    worker.postMessage([uuid, url, opts, stream!], [stream!] )
+    worker.postMessage([uuid, url, opts, stream!], [stream!])
   else 
     worker.postMessage([uuid, url, opts])
   
@@ -46,6 +46,22 @@ export function uploadWith(worker: Worker) {
         url, 
         opts: {...opts, method: 'POST'},
         stream: fileBlob.stream()
+      })
+  }
+}
+
+export function downloadWith(worker: Worker) {
+  return function download(url: string) {
+      return makeWorkerPromise(worker, {
+        url: `${url}#download`
+      }).then(blobUrl => {
+        const a = document.createElement('a');
+        a.href = blobUrl as string;
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        a.remove()
+        return blobUrl
       })
   }
 }

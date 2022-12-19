@@ -1,17 +1,19 @@
 
-let isLoggedIn : string | undefined;
+let authToken : string | undefined;
+let refreshToken : string | undefined;
+
 let username: string | undefined, password: string | undefined;
 
 const mockLogin = (username: string, password: string) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      isLoggedIn = 'secret'
+      authToken = 'secret'
       resolve('logged in')
       console.log('Worker: logged in.');
 
       setTimeout(() => { 
         console.log('Worker: logged out.');
-        isLoggedIn = undefined 
+        authToken = undefined 
       }, 1000 * 5)
     }, 0)
   })
@@ -20,7 +22,7 @@ const mockLogin = (username: string, password: string) => {
 const mockLogout = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      isLoggedIn = undefined;
+      authToken = undefined;
       username = undefined;
       password = undefined;
 
@@ -38,6 +40,19 @@ const mockFetch = (url: string, opts = {}) => {
   })
 } 
 
+const downloadFile = async (url: string, opts = {}) => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Unable to download file: ${response.status}`);
+  }
+
+  const data = await response.blob();
+  const blobUrl = URL.createObjectURL(data);
+
+  return blobUrl;
+}
+
 onmessage = async function (e) {
   const [uuid, url, opts, stream] = e.data;
   const options = opts || {}
@@ -47,7 +62,7 @@ onmessage = async function (e) {
       postMessage([uuid, {error: 'no previous session'}])
       return false
     }
-    if(!isLoggedIn) await mockLogin(username, password)
+    if(!authToken) await mockLogin(username, password)
 
     return true
   }
@@ -93,6 +108,25 @@ onmessage = async function (e) {
       })
       console.log('Worker: uploaded for stream')
       postMessage([uuid, res])
+      return
+    }
+
+    // download
+    case /#download$/.test(url): {
+      if(!(await tryLogin())) return
+
+      try {
+        console.log('Worker: start downloading')
+        
+        const blobUrl = await downloadFile(url, opts)
+        console.log(`Worker: downloaded ${blobUrl}`)
+
+        postMessage([uuid, blobUrl])
+      } catch(e) {
+        console.log(`Worker: failed download - {e.message}`)
+        postMessage([uuid, {error: (e as Error).message }])
+      }
+      return
     }
     
     // general requests
