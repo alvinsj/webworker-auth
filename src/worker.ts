@@ -1,6 +1,6 @@
+import { FetchOpts } from "./fetchWith";
 
 let authToken : string | undefined;
-let refreshToken : string | undefined;
 
 let username: string | undefined, password: string | undefined;
 
@@ -8,8 +8,8 @@ const mockLogin = (username: string, password: string) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       authToken = 'secret'
-      resolve('logged in')
-      console.log('Worker: logged in.');
+      resolve(`logged in with ${username}`)
+      console.log(`Worker: logged in with ${password}`);
 
       setTimeout(() => { 
         console.log('Worker: logged out.');
@@ -32,15 +32,15 @@ const mockLogout = () => {
   })
 }
 
-const addBearerToken = (opts) => ({
+const addBearerToken = (opts: FetchOpts) => ({
   ...opts,
   headers: new Headers({
-    ...Object.fromEntries(opts.header || []),
+    ...Object.fromEntries(opts?.headers?.entries() || []),
     'Authorization': `Bearer ${authToken}`, 
   })
 })
 
-const mockFetch = (url: string, opts = {}) => {
+const mockFetch = (url: string, opts: FetchOpts = {}) => {
   // FIXME use API instead of mock, use addBearerToken
   return new Promise((resolve,) => {
     setTimeout(() => {

@@ -4,6 +4,8 @@ import { log } from './log'
 export type FetchOpts = {
   body?: string
   method?: string
+  // FIXME use Headers
+  headers?: any
 }
 
 export type WorkerParam = {url: string, opts?: FetchOpts, stream?: ReadableStream}
@@ -16,7 +18,7 @@ const makeWorkerPromise = (worker: Worker, { url, opts, stream }: WorkerParam) =
   else 
     worker.postMessage([uuid, url, opts])
   
-  const listener = (e) => { 
+  const listener = (e: MessageEvent) => { 
     const requestUUID = e.data[0];
     const response = e.data[1] || {};
 

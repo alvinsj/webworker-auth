@@ -6,7 +6,7 @@ export type SetupOpts = {
   worker: Worker
 }
 
-export type SetupOpts = {
+export type SetupUploadOpts = {
   statusEl?: HTMLDivElement,
   worker: Worker,
   fileInputSelector: string
@@ -51,12 +51,12 @@ export function setupUploadRequest(element: HTMLButtonElement, opts: SetupUpload
     fileInputSelector
   } = opts
 
-  const fileInput = document.querySelector(fileInputSelector)
+  const fileInput = document.querySelector(fileInputSelector)! as HTMLInputElement
   const clickToBrowse = () => {
     fileInput.click()
   }
   const uploadFile = () => {
-    uploadWith(worker)('/upload', fileInput.files[0]).then(res => {
+    uploadWith(worker)('/upload', fileInput.files![0]).then(res => {
       log(`Success = ${res}`, true)
     }).catch(err => {
       log(`Error = ${err}`, true)
@@ -65,7 +65,7 @@ export function setupUploadRequest(element: HTMLButtonElement, opts: SetupUpload
   element.addEventListener('click', clickToBrowse)
 
   fileInput.addEventListener('change', () => {
-    element.innerText = `Upload ${fileInput.files[0].name}`
+    element.innerText = `Upload ${fileInput.files![0].name}`
     element.removeEventListener('click', clickToBrowse)
     element.addEventListener('click', uploadFile)
   });
