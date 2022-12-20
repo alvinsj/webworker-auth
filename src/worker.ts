@@ -4,32 +4,34 @@ let authToken : string | undefined;
 
 let username: string | undefined, password: string | undefined;
 
-const mockLogin = (username: string, password: string) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      authToken = 'secret'
-      resolve(`logged in with ${username}`)
-      console.log(`Worker: logged in with ${password}`);
-
-      setTimeout(() => { 
-        console.log('Worker: logged out.');
-        authToken = undefined 
-      }, 1000 * 5)
-    }, 0)
+const postLoginRequest = (username: string, password: string) => {
+  return fetch('/api/login', { 
+    method: 'POST',
+    body: JSON.stringify({username, password}),
+    headers: {
+      'Content-Type': 'application/json'
+    }
   })
+  .then((res) => res.json())
+  .then((res) => {
+    authToken = res.token
+    console.log('Worker: logged in.');
+  })
+  .catch(e => { throw e })
 }
 
-const mockLogout = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      authToken = undefined;
-      username = undefined;
-      password = undefined;
+const deleteLogoutRequest = () => {
+  return fetch(
+    '/api/logout', 
+    addBearerToken({ method: 'DELETE' })
+  ).then(() => {
+    authToken = undefined;
+    username = undefined;
+    password = undefined;
 
-      resolve('logged out')
-      console.log('Worker: logged out.');
-    }, 0)
+    console.log('Worker: logged out.');    
   })
+  .catch(e => { throw e })
 }
 
 const addBearerToken = (opts: FetchOpts) => ({
@@ -40,18 +42,14 @@ const addBearerToken = (opts: FetchOpts) => ({
   })
 })
 
-const mockFetch = (url: string, opts: FetchOpts = {}) => {
-  // FIXME use API instead of mock, use addBearerToken
-  return new Promise((resolve,) => {
-    setTimeout(() => {
-      resolve(`Authenticated request sent for ${opts?.method || 'GET'} ${url}`)
-    }, 0)
-  })
-} 
+const fetchWithAuth = (url: string, opts: FetchOpts = {}) => 
+  fetch(`/api/${url}`, addBearerToken(opts))
+  .then(res => res.json())
+  .catch(e => { throw e })
 
 const downloadFile = async (url: string, opts = {}) => {
   // FIXME use API instead of static files
-  const response = await fetch(url, addBearerToken(opts));
+  const response = await fetch(url, addBearerToken(opts)).catch(e => { throw e });
 
   if (!response.ok) {
     throw new Error(`Unable to download file: ${response.status}`);
@@ -72,7 +70,7 @@ onmessage = async function (e) {
       postMessage([uuid, {error: 'no previous session'}])
       return false
     }
-    if(!authToken) await mockLogin(username, password)
+    if(!authToken) await postLoginRequest(username, password)
 
     return true
   }
@@ -83,11 +81,11 @@ onmessage = async function (e) {
       const { username: u, password: p } = JSON.parse(options.body || {});
       
       try {
-        await mockLogin(u, p)
+        await postLoginRequest(u, p)
         username = u
         password = p
       } catch(e) {
-        postMessage([uuid, {error:'failed logging in'}])
+        postMessage([uuid, {error: 'failed logging in'}])
       }
       
       postMessage([uuid, 'logged in'])
@@ -98,7 +96,7 @@ onmessage = async function (e) {
     case url === '?logout': {
       
       try {
-        await mockLogout()
+        await deleteLogoutRequest()
       } catch(e) {
         postMessage([uuid, {error: 'failed logging in'}])
       }
@@ -112,8 +110,9 @@ onmessage = async function (e) {
       if(!(await tryLogin())) return
       
       // NOTE can add more capability, e.g. progress
-      const res = await mockFetch(url, {
+      const res = await fetchWithAuth(url, {
         ...opts, 
+        method: 'POST',
         body: stream
       })
       console.log('Worker: uploaded for stream')
@@ -143,7 +142,7 @@ onmessage = async function (e) {
     default: {
       if(!(await tryLogin())) return
 
-      const res = await mockFetch(url, opts)
+      const res = await fetchWithAuth(url, opts)
       postMessage([uuid, res])
     }
   }

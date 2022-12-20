@@ -35,7 +35,8 @@ export function setupSendAnAuthenticatedRequest(element: HTMLButtonElement, opts
   } = opts
   
   element.addEventListener('click', () => {
-    fetchWith(worker)('/abc', {
+    fetchWith(worker)('/new', {
+      method: 'POST',
       body: JSON.stringify({name: 'alvin'})
     }).then(res => {
       log(`Success = ${res}`, true)
@@ -83,9 +84,7 @@ export function setupDownloadRequest(element: HTMLButtonElement, opts: SetupOpts
   }
   const downloadFile = () => {
     // FIXME hardcode for example
-    const fileUrl = new URL('/github-git-cheat-sheet.pdf', import.meta.url).pathname
-    
-    downloadWith(worker)(fileUrl).then(res => {
+    downloadWith(worker)('/download').then(res => {
       log(`Success = Downloaded ${res}`, true)
     }).catch(err => {    
       log(`Error = ${err}`, true)
