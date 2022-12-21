@@ -1,4 +1,4 @@
-import { fetchWith, uploadWith, downloadWith } from './fetchWith'
+import { fetchWith, uploadWith, downloadWith, GoodResponse } from './fetchWith'
 import { log } from './log'
 
 export type SetupOpts = {
@@ -39,8 +39,8 @@ export function setupSendAnAuthenticatedRequest(element: HTMLButtonElement, opts
     fetchWith(worker)('/new', {
       method: 'POST',
       body: JSON.stringify({name: 'alvin'})
-    }).then(res => {
-      log(`Success = ${res}`, true)
+    }).then((res: GoodResponse) => {
+      log(`Success = ${res.message}`, true)
     }).catch(err => {
       log(`Error = ${err}`, true)
     })
@@ -75,8 +75,8 @@ export function setupUploadRequest(element: HTMLButtonElement, opts: SetupUpload
     fileInput.click()
   }
   const uploadFile = () => {
-    uploadWith(worker)('/upload', fileInput.files![0]).then(res => {
-      log(`Success = ${res}`, true)
+    uploadWith(worker)('/upload', fileInput.files![0]).then((res: GoodResponse) => {
+      log(`Success = ${res.message}`, true)
     }).catch(err => {
       log(`Error = ${err}`, true)
     })

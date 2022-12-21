@@ -7,10 +7,13 @@ export type FetchOpts = {
   // FIXME use Headers
   headers?: any
 }
-
+export type GoodResponse = {
+  message?: string
+  blobUrl?: string
+}
 export type WorkerParam = {url: string, opts?: FetchOpts, stream?: ReadableStream}
 
-const makeWorkerPromise = (worker: Worker, { url, opts, stream }: WorkerParam) => new Promise((resolve, reject) => {
+const makeWorkerPromise = (worker: Worker, { url, opts, stream }: WorkerParam) => new Promise<GoodResponse>((resolve, reject) => {
   const uuid = crypto.randomUUID()
 
   if(Boolean(stream))
@@ -56,14 +59,14 @@ export function downloadWith(worker: Worker) {
   return function download(url: string) {
       return makeWorkerPromise(worker, {
         url: `${url}#download`
-      }).then(blobUrl => {
+      }).then(res => {
         const a = document.createElement('a');
-        a.href = blobUrl as string;
+        a.href = res.blobUrl!;
         a.download = '';
         document.body.appendChild(a);
         a.click();
         a.remove()
-        return blobUrl
+        return res.blobUrl
       })
   }
 }

@@ -138,7 +138,7 @@ onmessage = async function (e) {
         const blobUrl = await downloadFile(url, opts)
         console.log(`Worker: downloaded ${blobUrl}`)
 
-        postMessage([uuid, blobUrl])
+        postMessage([uuid, {blobUrl}])
       } catch(e) {
         console.log(`Worker: failed download - {e.message}`)
         postMessage([uuid, {error: (e as Error).message }])
