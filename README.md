@@ -8,4 +8,18 @@ This repo tries:
 
 ![Screenshot 2022-12-19 at 5 18 42 PM](https://user-images.githubusercontent.com/243186/208391546-01c3b231-6eb7-4741-9742-56d8a4c51df7.png)
 
+## setup
+1. run server
+
+```
+cd server
+yarn 
+yarn server
+```
+
+2. run frontend
+```
+yarn 
+yarn dev
+```
 
