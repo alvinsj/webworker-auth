@@ -102,7 +102,7 @@ export function setupDownloadRequest(element: HTMLButtonElement, opts: SetupOpts
   }
   const downloadFile = () => {
     // FIXME hardcode for example
-    downloadWith(worker)('/download').then(res => {
+    downloadWith(worker)('/api/download').then(res => {
       log(`Success = Downloaded ${res}`, true)
     }).catch(err => {    
       log(`Error = ${err}`, true)

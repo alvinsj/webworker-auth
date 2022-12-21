@@ -52,7 +52,8 @@ app.get('/download', (req, res) => {
   const { authorization } = req.headers || {}
 
   if( isAuthenticated(authorization) ) {
-    res.sendFile(require('path').join(__dirname, '../public/github-git-cheat-sheet.pdf'))
+    const path = require('path').join(__dirname, '../public/github-git-cheat-sheet.pdf')
+    res.sendFile(path)
   
     return
   }
