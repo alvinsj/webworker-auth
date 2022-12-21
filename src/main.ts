@@ -4,7 +4,8 @@ import {
   setupSendAnAuthenticatedRequest,
   setupUploadRequest,
   setupDownloadRequest,
-  setupLogOutRequest
+  setupLogOutRequest,
+  setupSendDifferentDomainRequest
 } from './handlers'
 import { log } from './log'
 
@@ -16,7 +17,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <h2>Actions</h2>
         <ol>
           <li><button id="login">Login</button></li>
-          <li><button id="send">Send an authenticated request</button></li>
+          <li><button id="send">Send an request</button></li>
+          <li><button id="send-to-diff-domain">Send an request to different domain</button></li>
           <li><button id="upload">Upload a file</button><input type="file" hidden accept=".csv" id="fileUpload"/> </li>
           <li><button id="download">Download a file</button></li>
           <li><button id="logout">Log out</button></li>
@@ -39,6 +41,12 @@ if (window.Worker) {
   )
   setupSendAnAuthenticatedRequest(
     document.querySelector<HTMLButtonElement>('#send')!, { 
+      worker 
+    }
+  )
+
+  setupSendDifferentDomainRequest(
+    document.querySelector<HTMLButtonElement>('#send-to-diff-domain')!, { 
       worker 
     }
   )

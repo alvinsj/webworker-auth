@@ -61,13 +61,21 @@ const downloadFile = async (url: string, opts = {}) => {
   return blobUrl;
 }
 
+const validateOrigin = (url: string) => /^[\/\?]/.test(url)
+
 onmessage = async function (e) {
   const [uuid, url, opts, stream] = e.data;
   const options = opts || {}
 
+  // guard
+  if(!validateOrigin(url)) {
+    postMessage([uuid, {error: 'domain check error.'}])
+    return
+  }
+
   const tryLogin = async () => {
     if(!username || !password) {
-      postMessage([uuid, {error: 'no previous session'}])
+      postMessage([uuid, {error: 'no previous session.'}])
       return false
     }
     if(!authToken) await postLoginRequest(username, password)
@@ -85,7 +93,7 @@ onmessage = async function (e) {
         username = u
         password = p
       } catch(e) {
-        postMessage([uuid, {error: 'failed logging in'}])
+        postMessage([uuid, {error: 'failed logging in.'}])
       }
       
       postMessage([uuid, 'logged in'])
@@ -98,7 +106,7 @@ onmessage = async function (e) {
       try {
         await deleteLogoutRequest()
       } catch(e) {
-        postMessage([uuid, {error: 'failed logging in'}])
+        postMessage([uuid, {error: 'failed logging in.'}])
       }
       
       postMessage([uuid, 'logged out'])

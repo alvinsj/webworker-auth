@@ -21,7 +21,8 @@ export function setupLoginRequest(element: HTMLButtonElement, opts: SetupOpts) {
   } = opts
   
   element.addEventListener('click', () => {
-    fetchWith(worker)('?login', { body: JSON.stringify({username, password}) }).then(res => {
+    fetchWith(worker)('?login', { body: JSON.stringify({username, password}) })
+    .then(res => {
       log(`Success = ${res}`, true)
     }).catch(err => {
       log(`Error = ${err}`, true)
@@ -36,6 +37,23 @@ export function setupSendAnAuthenticatedRequest(element: HTMLButtonElement, opts
   
   element.addEventListener('click', () => {
     fetchWith(worker)('/new', {
+      method: 'POST',
+      body: JSON.stringify({name: 'alvin'})
+    }).then(res => {
+      log(`Success = ${res}`, true)
+    }).catch(err => {
+      log(`Error = ${err}`, true)
+    })
+  })
+}
+
+export function setupSendDifferentDomainRequest(element: HTMLButtonElement, opts: SetupOpts) {
+  const {
+    worker
+  } = opts
+  
+  element.addEventListener('click', () => {
+    fetchWith(worker)('http://fake-a-csrf-domain.com/new', {
       method: 'POST',
       body: JSON.stringify({name: 'alvin'})
     }).then(res => {
